@@ -5,6 +5,8 @@
 #ifndef FAST_MIXER_SOUNDRECORDING_H
 #define FAST_MIXER_SOUNDRECORDING_H
 
+#include <ThreadPool.h>
+
 #ifndef MODULE_NAME
 #define MODULE_NAME  "SoundRecording"
 #endif
@@ -12,6 +14,8 @@
 
 class SoundRecording {
 public:
+    SoundRecording();
+
     int32_t write(const int16_t *sourceData, int32_t numSamples);
     void read(int16_t *targetData, int32_t numSamples);
     int32_t getTotalSamples() const { return mTotalSamples; }

@@ -9,6 +9,7 @@
 #include "SoundRecording.h"
 #include "logging_macros.h"
 #include "Utils.h"
+#include <ThreadPool.h>
 
 void SoundRecording::write_runnable(const int16_t *sourceData, int32_t numSamples, SoundRecording* soundRecording) {
     if (soundRecording->isRecordingFpOpen) {
@@ -37,15 +38,17 @@ void SoundRecording::read_runnable(int16_t *targetData, int32_t numSamples, Soun
 }
 
 int32_t SoundRecording::write(const int16_t *sourceData, int32_t numSamples) {
-    std::async(std::launch::async, write_runnable, sourceData, numSamples, this);
+    ThreadPool pool(2);
+    pool.enqueue(write_runnable, sourceData, numSamples, this);
     return numSamples;
 }
 
 void SoundRecording::read(int16_t *targetData, int32_t numSamples) {
     LOGD(TAG, "read(): ");
     LOGD(TAG, std::to_string(numSamples).c_str());
-    // Live playback in main thread to prevent occasional lag that is being happened
-    read_runnable(targetData, numSamples, this);
+
+    ThreadPool pool(2);
+    pool.enqueue(read_runnable, targetData, numSamples, this);
 }
 
 void SoundRecording::openRecordingFp() {
