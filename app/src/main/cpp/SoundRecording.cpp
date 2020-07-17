@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <string>
 #include <future>
+#include <ctpl_stl.h>
 #include "SoundRecording.h"
 #include "logging_macros.h"
 #include "Utils.h"

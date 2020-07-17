@@ -4,7 +4,6 @@
 
 #ifndef FAST_MIXER_SOUNDRECORDING_H
 #define FAST_MIXER_SOUNDRECORDING_H
-
 #ifndef MODULE_NAME
 #define MODULE_NAME  "SoundRecording"
 #endif

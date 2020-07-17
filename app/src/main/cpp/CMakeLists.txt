@@ -13,6 +13,11 @@ include_directories(${FFMPEG_DIR}/include)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+set(CTPL_DIR ${PROJECT_SOURCE_DIR}/../../../../cpp_dependencies/CTPL)
+include_directories(${CTPL_DIR})
+
+set(SOURCES ${CTPL_DIR}/ctpl.h)
+
 add_library( # Sets the name of the library.
              audioEngine
 
