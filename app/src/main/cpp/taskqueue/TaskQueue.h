@@ -43,12 +43,12 @@ private:
     void start_queue() {
         is_running = true;
         t = thread([this] {
-            this->worker_loop();
+            this->executor_loop();
         });
         t.detach();
     }
 
-    void worker_loop() {
+    void executor_loop() {
         int i = 0;
         while (is_running) {
             if (!q.empty()) {
