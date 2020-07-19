@@ -29,8 +29,6 @@ public:
 
     template<class F, class... Args>
     auto enqueue(F&& f, Args&&... args) {
-        using return_type = typename std::result_of<F(Args...)>::type;
-
         auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
         auto func = [task](){ task(); };
         q.push(func);
@@ -47,6 +45,7 @@ private:
         t = thread([this] {
             this->worker_loop();
         });
+        t.detach();
     }
 
     void worker_loop() {

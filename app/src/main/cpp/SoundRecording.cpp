@@ -12,6 +12,7 @@
 
 void SoundRecording::write_runnable(const int16_t *sourceData, int32_t numSamples, SoundRecording* soundRecording) {
     if (soundRecording->isRecordingFpOpen) {
+        LOGD(soundRecording->TAG, "Write started");
         auto *buffer = new int16_t[numSamples]{0};
 
         for (int i = 0; i < numSamples; i++) {
@@ -22,6 +23,7 @@ void SoundRecording::write_runnable(const int16_t *sourceData, int32_t numSample
         fflush(soundRecording->recordingFp);
 
         soundRecording->mTotalSamples += numSamples;
+        LOGD(soundRecording->TAG, std::to_string(soundRecording->mTotalSamples).c_str());
     }
 }
 
