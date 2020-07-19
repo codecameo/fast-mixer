@@ -48,7 +48,9 @@ void SoundRecording::read_playback_runnable(int16_t *targetData, int32_t numSamp
 }
 
 int32_t SoundRecording::write(const int16_t *sourceData, int32_t numSamples) {
-    write_runnable(sourceData, numSamples, this);
+    LOGD(TAG, "write(): ");
+    LOGD(TAG, std::to_string(numSamples).c_str());
+    taskQueue->enqueue(write_runnable, sourceData, numSamples, this);
     return numSamples;
 }
 

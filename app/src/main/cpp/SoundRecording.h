@@ -5,6 +5,9 @@
 #ifndef FAST_MIXER_SOUNDRECORDING_H
 #define FAST_MIXER_SOUNDRECORDING_H
 
+
+#include <TaskQueue.h>
+
 #ifndef MODULE_NAME
 #define MODULE_NAME  "SoundRecording"
 #endif
@@ -12,6 +15,14 @@
 
 class SoundRecording {
 public:
+    SoundRecording() {
+        taskQueue = new TaskQueue();
+    }
+
+    ~SoundRecording() {
+        taskQueue->stop_queue();
+    }
+
     int32_t write(const int16_t *sourceData, int32_t numSamples);
     void read_live_playback(int16_t *targetData, int32_t numSamples);
     void read_playback(int16_t *targetData, int32_t numSamples);
@@ -47,6 +58,8 @@ private:
     std::atomic<int32_t> mTotalReadLivePlayback {0};
     std::atomic<int32_t> mTotalReadPlayback {0};
     int16_t gain_factor = 2;
+
+    TaskQueue *taskQueue;
 
     static void write_runnable(const int16_t *sourceData, int32_t numSamples, SoundRecording* soundRecording);
 
