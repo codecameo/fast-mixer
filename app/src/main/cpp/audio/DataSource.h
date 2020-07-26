@@ -25,7 +25,7 @@ public:
     virtual ~DataSource(){};
     virtual int64_t getSize() const = 0;
     virtual AudioProperties getProperties() const  = 0;
-    virtual const float* getData() const = 0;
+    virtual const int16_t* getData() const = 0;
 };
 
 

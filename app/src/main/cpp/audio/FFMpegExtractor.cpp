@@ -313,7 +313,7 @@ int64_t FFMpegExtractor::decode(
                     (const uint8_t **) decodedFrame->data,
                     decodedFrame->nb_samples);
 
-            int64_t bytesToWrite = frame_count * sizeof(float) * mTargetProperties.channelCount;
+            int64_t bytesToWrite = frame_count * sizeof(int16_t) * mTargetProperties.channelCount;
             memcpy(targetData + bytesWritten, buffer1, (size_t)bytesToWrite);
             bytesWritten += bytesToWrite;
             av_freep(&buffer1);

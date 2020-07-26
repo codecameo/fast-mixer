@@ -17,7 +17,7 @@
 #include "Player.h"
 #include "../logging_macros.h"
 
-void Player::renderAudio(float *targetData, int32_t numFrames){
+void Player::renderAudio(int16_t *targetData, int32_t numFrames){
 
     const AudioProperties properties = mSource->getProperties();
 
@@ -25,7 +25,7 @@ void Player::renderAudio(float *targetData, int32_t numFrames){
 
         int64_t framesToRenderFromData = numFrames;
         int64_t totalSourceFrames = mSource->getSize() / properties.channelCount;
-        const float *data = mSource->getData();
+        const int16_t *data = mSource->getData();
 
         // Check whether we're about to reach the end of the recording
         if (!mIsLooping && mReadFrameIndex + numFrames >= totalSourceFrames){
@@ -52,7 +52,7 @@ void Player::renderAudio(float *targetData, int32_t numFrames){
     }
 }
 
-void Player::renderSilence(float *start, int32_t numSamples){
+void Player::renderSilence(int16_t *start, int32_t numSamples){
     for (int i = 0; i < numSamples; ++i) {
         start[i] = 0;
     }

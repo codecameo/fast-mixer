@@ -27,7 +27,7 @@ class FileDataSource : public DataSource {
 public:
     int64_t getSize() const override { return mBufferSize; }
     AudioProperties getProperties() const override { return mProperties; }
-    const float* getData() const override { return mBuffer.get(); }
+    const int16_t* getData() const override { return mBuffer.get(); }
 
     static FileDataSource* newFromCompressedFile(
             const char *filename,
@@ -35,7 +35,7 @@ public:
 
 private:
 
-    FileDataSource(std::unique_ptr<float[]> data, size_t size,
+    FileDataSource(std::unique_ptr<int16_t[]> data, size_t size,
                    const AudioProperties properties)
             : mBuffer(std::move(data))
             , mBufferSize(size)
@@ -44,7 +44,7 @@ private:
 
     static long getFileSize(const char *fileName);
 
-    const std::unique_ptr<float[]> mBuffer;
+    const std::unique_ptr<int16_t[]> mBuffer;
     const int64_t mBufferSize;
     const AudioProperties mProperties;
 

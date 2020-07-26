@@ -58,10 +58,10 @@ FileDataSource* FileDataSource::newFromCompressedFile(
 
     auto ffmpegExtractor = FFMpegExtractor(filenameStr, targetProperties);
     int64_t bytesDecoded = ffmpegExtractor.decode(decodedData);
-    auto numSamples = bytesDecoded / sizeof(float);
+    auto numSamples = bytesDecoded / sizeof(int16_t);
 
     // Now we know the exact number of samples we can create a float array to hold the audio data
-    auto outputBuffer = std::make_unique<float[]>(numSamples);
+    auto outputBuffer = std::make_unique<int16_t[]>(numSamples);
     memcpy(outputBuffer.get(), decodedData, (size_t)bytesDecoded);
 
     delete[] decodedData;

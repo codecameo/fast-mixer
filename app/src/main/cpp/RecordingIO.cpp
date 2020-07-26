@@ -62,7 +62,7 @@ bool RecordingIO::validate_audio_file() {
     return !(mRecordingFilePath.empty() || (access(mRecordingFilePath.c_str(), F_OK) == -1));
 }
 
-void RecordingIO::read_playback(float *targetData, int32_t numSamples) {
+void RecordingIO::read_playback(int16_t *targetData, int32_t numSamples) {
     LOGD(TAG, "read(): ");
     LOGD(TAG, std::to_string(numSamples).c_str());
 

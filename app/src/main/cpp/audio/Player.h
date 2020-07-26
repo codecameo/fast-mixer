@@ -43,7 +43,7 @@ public:
         : mSource(source)
     {};
 
-    void renderAudio(float *targetData, int32_t numFrames);
+    void renderAudio(int16_t *targetData, int32_t numFrames);
     void resetPlayHead() { mReadFrameIndex = 0; };
     void setPlaying(bool isPlaying) { mIsPlaying = isPlaying; resetPlayHead(); };
     void setLooping(bool isLooping) { mIsLooping = isLooping; };
@@ -54,7 +54,7 @@ private:
     std::atomic<bool> mIsLooping { false };
     std::shared_ptr<DataSource> mSource;
 
-    void renderSilence(float*, int32_t);
+    void renderSilence(int16_t*, int32_t);
 };
 
 #endif //RHYTHMGAME_SOUNDRECORDING_H
