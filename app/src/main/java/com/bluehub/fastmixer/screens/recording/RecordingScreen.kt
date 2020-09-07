@@ -61,7 +61,10 @@ class RecordingScreen : PermissionFragment() {
 
         val localViewModel: RecordingScreenViewModel by navGraphViewModels(R.id.nav_graph) { viewModelFactory }
 
+
         RecordingScreenViewModel.setInstance(localViewModel)
+        localViewModel.initializeViewModel()
+
         viewModel = localViewModel
         dataBinding.viewModel = viewModel as RecordingScreenViewModel
 
