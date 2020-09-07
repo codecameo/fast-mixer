@@ -8,15 +8,15 @@ import android.widget.SeekBar
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import com.bluehub.fastmixer.R
 import com.bluehub.fastmixer.common.permissions.PermissionFragment
 import com.bluehub.fastmixer.common.permissions.PermissionViewModel
 import com.bluehub.fastmixer.common.utils.DialogManager
 import com.bluehub.fastmixer.common.utils.ScreenConstants
 import com.bluehub.fastmixer.databinding.RecordingScreenBinding
+import com.bluehub.fastmixer.screens.mixing.MixingScreenViewModel
 import com.visualizer.amplitude.AudioRecordView
 import javax.inject.Inject
 
@@ -59,11 +59,10 @@ class RecordingScreen : PermissionFragment() {
 
         viewModelFactory = RecordingScreenViewModelFactory(context, TAG)
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory)
-            .get(RecordingScreenViewModel::class.java)
+        val localViewModel: RecordingScreenViewModel by navGraphViewModels(R.id.nav_graph) { viewModelFactory }
 
-        RecordingScreenViewModel.setInstance(viewModel as RecordingScreenViewModel)
-
+        RecordingScreenViewModel.setInstance(localViewModel)
+        viewModel = localViewModel
         dataBinding.viewModel = viewModel as RecordingScreenViewModel
 
         dataBinding.lifecycleOwner = viewLifecycleOwner

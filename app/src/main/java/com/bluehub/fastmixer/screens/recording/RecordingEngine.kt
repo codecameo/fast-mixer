@@ -1,9 +1,7 @@
-package com.bluehub.fastmixer.common.audio
-
-import com.bluehub.fastmixer.screens.recording.RecordingScreenViewModel
+package com.bluehub.fastmixer.screens.recording
 
 
-class AudioEngine {
+class RecordingEngine {
     companion object {
         init {
             System.loadLibrary("audioEngine")
@@ -11,8 +9,11 @@ class AudioEngine {
 
         @JvmStatic external fun create(
             appPathStr: String,
-            recordingSessionIdStr: String,
             recordingScreenViewModelPassed: Boolean = false): Boolean
+
+        @JvmStatic external fun setRecordingSessionId(
+            recordingSessionIdStr: String
+        )
 
         @JvmStatic external fun delete()
 
@@ -50,6 +51,6 @@ class AudioEngine {
 
         @JvmStatic external fun getDurationInSeconds(): Int
 
-        @JvmStatic external fun resetAudioEngine()
+        @JvmStatic external fun resetRecordingEngine()
     }
 }

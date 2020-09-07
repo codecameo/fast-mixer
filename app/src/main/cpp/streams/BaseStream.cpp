@@ -8,21 +8,20 @@ BaseStream::BaseStream(RecordingIO* recordingIO) {
     mRecordingIO = recordingIO;
 }
 
-void BaseStream::startStream(oboe::AudioStream *stream) {
+void BaseStream::startStream() {
     LOGD(TAG, "startStream(): ");
-    assert(stream);
-    if (stream) {
-        oboe::Result result = stream->requestStart();
+    if (mStream) {
+        oboe::Result result = mStream->requestStart();
         if (result != oboe::Result::OK) {
             LOGE(TAG, "Error starting the stream: %s", oboe::convertToText(result));
         }
     }
 }
 
-void BaseStream::stopStream(oboe::AudioStream *stream) {
+void BaseStream::stopStream() {
     LOGD("stopStream(): ");
-    if (stream && stream->getState() != oboe::StreamState::Closed) {
-        oboe::Result result = stream->stop(0L);
+    if (mStream && mStream->getState() != oboe::StreamState::Closed) {
+        oboe::Result result = mStream->stop(0L);
         if (result != oboe::Result::OK) {
             LOGE(TAG, "Error stopping the stream: %s");
             LOGE(TAG, oboe::convertToText(result));
@@ -32,15 +31,15 @@ void BaseStream::stopStream(oboe::AudioStream *stream) {
     }
 }
 
-void BaseStream::closeStream(oboe::AudioStream *stream) {
+void BaseStream::closeStream() {
     LOGD("closeStream(): ");
 
-    if (stream) {
-        oboe::Result result = stream->close();
+    if (mStream) {
+        oboe::Result result = mStream->close();
         if (result != oboe::Result::OK) {
             LOGE(TAG, "Error closing stream. %s", oboe::convertToText(result));
         } else {
-            stream = nullptr;
+            mStream = nullptr;
         }
 
         LOGW(TAG, "closeStream(): mTotalSamples = ");

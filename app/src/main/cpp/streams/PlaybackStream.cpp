@@ -14,22 +14,22 @@ void PlaybackStream::openPlaybackStream() {
     oboe::AudioStreamBuilder builder;
     setupPlaybackStreamParameters(&builder, StreamConstants::mAudioApi, StreamConstants::mPlaybackFormat, this,
                                   StreamConstants::mPlaybackDeviceId, StreamConstants::mPlaybackSampleRate, StreamConstants::mOutputChannelCount);
-    oboe::Result result = builder.openStream(&mPlaybackStream);
-    if (result == oboe::Result::OK && mPlaybackStream) {
-        assert(mPlaybackStream->getChannelCount() == StreamConstants::mOutputChannelCount);
-//        assert(mPlaybackStream->getSampleRate() == mSampleRate);
-        assert(mPlaybackStream->getFormat() == StreamConstants::mPlaybackFormat);
+    oboe::Result result = builder.openStream(&mStream);
+    if (result == oboe::Result::OK && mStream) {
+        assert(mStream->getChannelCount() == StreamConstants::mOutputChannelCount);
+//        assert(mStream->getSampleRate() == mSampleRate);
+        assert(mStream->getFormat() == StreamConstants::mPlaybackFormat);
 
-        auto sampleRate = mPlaybackStream->getSampleRate();
+        auto sampleRate = mStream->getSampleRate();
         LOGV(TAG, "openPlaybackStream(): mSampleRate = ");
         LOGV(TAG, std::to_string(sampleRate).c_str());
 
-        int32_t mFramesPerBurst = mPlaybackStream->getFramesPerBurst();
+        int32_t mFramesPerBurst = mStream->getFramesPerBurst();
         LOGV(TAG, "openPlaybackStream(): mFramesPerBurst = ");
         LOGV(TAG, std::to_string(mFramesPerBurst).c_str());
 
         // Set the buffer size to the burst size - this will give us the minimum possible latency
-        mPlaybackStream->setBufferSizeInFrames(mFramesPerBurst);
+        mStream->setBufferSizeInFrames(mFramesPerBurst);
 
     } else {
         LOGE(TAG, "openPlaybackStream(): Failed to create playback stream. Error: %s",
@@ -69,5 +69,5 @@ PlaybackStream::processPlaybackFrame(oboe::AudioStream *audioStream, float *audi
 }
 
 void PlaybackStream::onErrorAfterClose(oboe::AudioStream *audioStream, oboe::Result result) {
-    mPlaybackStream = nullptr;
+    mStream = nullptr;
 }

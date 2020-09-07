@@ -2,26 +2,26 @@
 // Created by asalehin on 7/9/20.
 //
 
-#ifndef FAST_MIXER_AUDIOENGINE_H
-#define FAST_MIXER_AUDIOENGINE_H
+#ifndef FAST_MIXER_RECORDINGENGINE_H
+#define FAST_MIXER_RECORDINGENGINE_H
 
 #ifndef MODULE_NAME
-#define MODULE_NAME "AudioEngine"
+#define MODULE_NAME "RecordingEngine"
 #endif
 
-#include <oboe/Definitions.h>
-#include <oboe/AudioStream.h>
-#include "logging_macros.h"
+#include "../../../../../cpp_dependencies/oboe/include/oboe/Definitions.h"
+#include "../../../../../cpp_dependencies/oboe/include/oboe/AudioStream.h"
+#include "../logging_macros.h"
 #include "RecordingIO.h"
-#include "streams/BaseStream.h"
-#include "streams/RecordingStream.h"
-#include "streams/LivePlaybackStream.h"
-#include "streams/PlaybackStream.h"
+#include "../streams/BaseStream.h"
+#include "../streams/RecordingStream.h"
+#include "../streams/LivePlaybackStream.h"
+#include "../streams/PlaybackStream.h"
 
-class AudioEngine {
+class RecordingEngine {
 public:
-    AudioEngine(char* appDir, char* mRecordingSessionId, bool recordingScreenViewModelPassed);
-    ~AudioEngine();
+    RecordingEngine(char* appDir, bool recordingScreenViewModelPassed);
+    ~RecordingEngine();
 
     void startRecording();
     void stopRecording();
@@ -42,7 +42,7 @@ public:
 
     void resetCurrentMax();
 
-    void togglePlayback();
+    void setStopPlayback();
 
     int getTotalRecordedFrames();
 
@@ -52,7 +52,9 @@ public:
 
     int getDurationInSeconds();
 
-    void resetAudioEngine();
+    void resetRecordingEngine();
+
+    void setRecordingSessionId(char *recordingSessionId);
 
 private:
     const char* TAG = "Audio Engine:: %s";
@@ -73,4 +75,4 @@ private:
 };
 
 
-#endif //FAST_MIXER_AUDIOENGINE_H
+#endif //FAST_MIXER_RECORDINGENGINE_H

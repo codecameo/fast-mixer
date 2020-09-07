@@ -19,7 +19,7 @@ struct buffer_data {
 
 struct method_ids {
     jclass recordingScreenVM;
-    jmethodID recordingScreenVMTogglePlay;
+    jmethodID setStopPlay;
 };
 
 #endif //FAST_MIXER_CONSTANTS_H

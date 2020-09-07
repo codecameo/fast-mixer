@@ -5,12 +5,12 @@
 #ifndef FAST_MIXER_RECORDINGIO_H
 #define FAST_MIXER_RECORDINGIO_H
 
-#include <FileDataSource.h>
-#include <sndfile.hh>
-#include <Player.h>
-#include "taskqueue/TaskQueue.h"
-#include <oboe/Definitions.h>
-#include "streams/StreamConstants.h"
+#include "../audio/FileDataSource.h"
+#include "../../../../../cpp_dependencies/libsndfile/src/sndfile.hh"
+#include "../audio/Player.h"
+#include "../taskqueue/TaskQueue.h"
+#include "../../../../../cpp_dependencies/oboe/include/oboe/Definitions.h"
+#include "../streams/StreamConstants.h"
 
 #ifndef MODULE_NAME
 #define MODULE_NAME  "RecordingIO"
@@ -34,9 +34,7 @@ public:
 
     void flush_buffer();
 
-    void setRecordingFilePath(std::string recordingFilePath) {
-        mRecordingFilePath = recordingFilePath;
-    }
+    void setRecordingFilePath(std::string recordingFilePath);
 
     bool setup_audio_source();
     void pause_audio_source();
@@ -50,7 +48,7 @@ public:
 
     void resetCurrentMax();
 
-    void setTogglePlaybackCallback(std::function<void(void)> stopPlaybackCallback);
+    void setStopPlaybackCallback(std::function<void(void)> stopPlaybackCallback);
 
     int getTotalRecordedFrames();
 
@@ -68,9 +66,9 @@ private:
 
     std::string mRecordingFilePath;
 
-    std::shared_ptr<Player> mRecordedTrack {nullptr};
+    std::unique_ptr<Player> mRecordedTrack {nullptr};
 
-    std::shared_ptr<SndfileHandle> mRecordingFile {nullptr};
+    std::unique_ptr<SndfileHandle> mRecordingFile {nullptr};
 
     int32_t mTotalSamples = 0;
     int32_t mIteration = 1;
@@ -88,7 +86,7 @@ private:
 
     int16_t* mData = new int16_t[kMaxSamples]{0};
 
-    static void flush_to_file(int16_t* buffer, int length, const std::string& recordingFilePath, std::shared_ptr<SndfileHandle>& recordingFile);
+    static void flush_to_file(int16_t* buffer, int length, const std::string& recordingFilePath, std::unique_ptr<SndfileHandle>& recordingFile);
 
     bool validate_audio_file();
 

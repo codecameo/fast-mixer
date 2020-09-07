@@ -11,12 +11,12 @@ RecordingStream::RecordingStream(RecordingIO* recordingIO): BaseStream(recording
 void RecordingStream::openRecordingStream() {
     oboe::AudioStreamBuilder builder;
     setupRecordingStreamParameters(&builder);
-    oboe::Result result = builder.openStream(&mRecordingStream);
+    oboe::Result result = builder.openStream(&mStream);
 
-    if (result == oboe::Result::OK && mRecordingStream) {
-        assert(mRecordingStream->getChannelCount() == StreamConstants::mInputChannelCount);
-        auto sampleRate = mRecordingStream->getSampleRate();
-        auto format = mRecordingStream->getFormat();
+    if (result == oboe::Result::OK && mStream) {
+        assert(mStream->getChannelCount() == StreamConstants::mInputChannelCount);
+        auto sampleRate = mStream->getSampleRate();
+        auto format = mStream->getFormat();
         LOGV(TAG, "openRecordingStream(): mSampleRate = ");
         LOGV(TAG, std::to_string(sampleRate).c_str());
 
@@ -55,5 +55,5 @@ RecordingStream::processRecordingFrames(oboe::AudioStream *audioStream, int16_t 
 }
 
 void RecordingStream::onErrorAfterClose(oboe::AudioStream *audioStream, oboe::Result result) {
-    mRecordingStream = nullptr;
+    mStream = nullptr;
 }

@@ -7,13 +7,13 @@
 #include <string>
 #include <unistd.h>
 #include "RecordingIO.h"
-#include "logging_macros.h"
-#include "Utils.h"
+#include "../logging_macros.h"
+#include "../Utils.h"
 #include <mutex>
 #include <condition_variable>
 #include <sys/stat.h>
-#include "Constants.h"
-#include "AudioEngine.h"
+#include "../Constants.h"
+#include "RecordingEngine.h"
 
 std::mutex RecordingIO::mtx;
 std::condition_variable RecordingIO::reallocated;
@@ -21,6 +21,10 @@ bool RecordingIO::is_reallocated = false;
 
 bool RecordingIO::check_if_reallocated() {
     return is_reallocated;
+}
+
+void RecordingIO::setRecordingFilePath(std::string recordingFilePath) {
+    mRecordingFilePath = recordingFilePath;
 }
 
 bool RecordingIO::setup_audio_source() {
@@ -50,7 +54,7 @@ bool RecordingIO::setup_audio_source() {
         }
     }
 
-    mRecordedTrack = std::make_shared<Player>(audioSource, mStopPlaybackCallback);
+    mRecordedTrack = std::make_unique<Player>(audioSource, mStopPlaybackCallback);
     mRecordedTrack->setPlayHead(playHead);
     mRecordedTrack->setPlaying(true);
 
@@ -87,11 +91,11 @@ void RecordingIO::read_playback(float *targetData, int32_t numFrames, int32_t ch
     mRecordedTrack->renderAudio(targetData, numFrames);
 }
 
-void RecordingIO::flush_to_file(int16_t* buffer, int32_t length, const std::string& recordingFilePath, std::shared_ptr<SndfileHandle>& recordingFile) {
+void RecordingIO::flush_to_file(int16_t* buffer, int32_t length, const std::string& recordingFilePath, std::unique_ptr<SndfileHandle>& recordingFile) {
     if (recordingFile == nullptr) {
         int format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
         SndfileHandle file = SndfileHandle(recordingFilePath, SFM_WRITE, format, StreamConstants::mInputChannelCount, StreamConstants::mSampleRate);
-        recordingFile = std::make_shared<SndfileHandle>(file);
+        recordingFile = std::make_unique<SndfileHandle>(file);
     }
     recordingFile->write(buffer, length);
 
@@ -223,7 +227,7 @@ void RecordingIO::resetCurrentMax() {
     currentMax = 0;
 }
 
-void RecordingIO::setTogglePlaybackCallback(std::function<void()> stopPlaybackCallback) {
+void RecordingIO::setStopPlaybackCallback(std::function<void()> stopPlaybackCallback) {
     mStopPlaybackCallback = stopPlaybackCallback;
 }
 
@@ -256,6 +260,7 @@ void RecordingIO::resetProperties() {
     taskQueue = new TaskQueue();
     mRecordedTrack.reset();
     mRecordedTrack = nullptr;
+    mRecordingFile.reset();
     mRecordingFile = nullptr;
     mTotalSamples = 0;
     mIteration = 1;

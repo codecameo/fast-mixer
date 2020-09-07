@@ -3,7 +3,6 @@ package com.bluehub.fastmixer.screens.recording
 import android.content.Context
 import android.os.Build
 import android.os.Environment
-import com.bluehub.fastmixer.common.audio.AudioEngineProxy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -12,92 +11,98 @@ import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.*
 
-class RecordingRepository(val audioEngineProxy: AudioEngineProxy) {
-    private val recordingSessionId = UUID.randomUUID().toString()
+class RecordingRepository(val recordingEngineProxy: RecordingEngineProxy) {
+    private lateinit var recordingSessionId: String
+    private lateinit var cacheDirForSession: String
     private lateinit var cacheDir: String
 
     suspend fun stopRecording() {
         withContext(Dispatchers.IO) {
-            audioEngineProxy.stopRecording()
+            recordingEngineProxy.stopRecording()
         }
     }
 
     fun startLivePlayback() {
-        audioEngineProxy.startLivePlayback()
+        recordingEngineProxy.startLivePlayback()
     }
 
     fun pauseLivePlayback() {
-        audioEngineProxy.pauseLivePlayback()
+        recordingEngineProxy.pauseLivePlayback()
     }
 
     fun stopLivePlayback() {
-        audioEngineProxy.stopLivePlayback()
+        recordingEngineProxy.stopLivePlayback()
     }
 
     fun startPlaying(): Boolean {
-        return audioEngineProxy.startPlayback()
+        return recordingEngineProxy.startPlayback()
     }
 
     fun pausePlaying() {
-        audioEngineProxy.pausePlayback()
+        recordingEngineProxy.pausePlayback()
     }
 
     suspend fun stopPlaying() {
         withContext(Dispatchers.IO) {
-            audioEngineProxy.stopPlayback()
+            recordingEngineProxy.stopPlayback()
         }
     }
 
     fun stopPlayingSync() {
-        audioEngineProxy.stopPlayback()
+        recordingEngineProxy.stopPlayback()
     }
 
     fun startRecording() {
-        audioEngineProxy.startRecording()
+        recordingEngineProxy.startRecording()
     }
 
     suspend fun pauseRecording() {
         withContext(Dispatchers.IO) {
-            audioEngineProxy.pauseRecording()
+            recordingEngineProxy.pauseRecording()
         }
     }
 
     suspend fun flushWriteBuffer() {
         withContext(Dispatchers.IO) {
-            audioEngineProxy.flushWriteBuffer()
+            recordingEngineProxy.flushWriteBuffer()
         }
     }
 
     suspend fun restartPlayback() {
         withContext(Dispatchers.IO) {
-            audioEngineProxy.restartPlayback()
+            recordingEngineProxy.restartPlayback()
         }
     }
 
-    fun deleteAudioEngine() {
-        audioEngineProxy.delete()
+    fun deleteRecordingEngine() {
+        recordingEngineProxy.delete()
     }
 
-    fun createCacheDirectory(cacheDirPath: String): String {
-        cacheDir = "$cacheDirPath/$recordingSessionId"
-        val cacheDirFile = File(cacheDir)
+    fun setCacheDirectory(cacheDirPath: String) {
+        cacheDir = cacheDirPath
+    }
+
+    fun setRecordingSessionId() {
+        recordingSessionId = UUID.randomUUID().toString()
+        cacheDirForSession = "$cacheDir/$recordingSessionId"
+        val cacheDirFile = File(cacheDirForSession)
         if (!cacheDirFile.exists()) {
             cacheDirFile.mkdir()
         }
-        return cacheDir
+        recordingEngineProxy.setRecordingSessionId(recordingSessionId)
     }
 
-    fun createAudioEngine() {
-        audioEngineProxy.create(cacheDir, recordingSessionId, true)
+    fun createRecordingEngine() {
+        recordingEngineProxy.create(cacheDir, true)
     }
 
     fun copyRecordedFile(context: Context) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
             val externalPath = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
-            val cacheFile = File("$cacheDir/recording.wav")
+            val cacheFile = File("$cacheDirForSession/recording.wav")
             if (cacheFile.exists()) {
                 Files.copy(
-                    Paths.get("$cacheDir/recording.wav"),
+                    Paths.get("$cacheDirForSession/recording.wav"),
                     Paths.get(externalPath!!.path + "/$recordingSessionId.wav"),
                     StandardCopyOption.REPLACE_EXISTING
                 )
@@ -105,19 +110,19 @@ class RecordingRepository(val audioEngineProxy: AudioEngineProxy) {
         }
     }
 
-    fun getCurrentMax() = audioEngineProxy.getCurrentMax()
+    fun getCurrentMax() = recordingEngineProxy.getCurrentMax()
 
-    fun resetCurrentMax() = audioEngineProxy.resetCurrentMax()
+    fun resetCurrentMax() = recordingEngineProxy.resetCurrentMax()
 
-    fun getTotalRecordedFrames() = audioEngineProxy.getTotalRecordedFrames()
+    fun getTotalRecordedFrames() = recordingEngineProxy.getTotalRecordedFrames()
 
-    fun getCurrentPlaybackProgress() = audioEngineProxy.getCurrentPlaybackProgress()
+    fun getCurrentPlaybackProgress() = recordingEngineProxy.getCurrentPlaybackProgress()
 
-    fun setPlayHead(position: Int) = audioEngineProxy.setPlayHead(position)
+    fun setPlayHead(position: Int) = recordingEngineProxy.setPlayHead(position)
 
-    fun getDurationInSeconds() = audioEngineProxy.getDurationInSeconds()
+    fun getDurationInSeconds() = recordingEngineProxy.getDurationInSeconds()
 
-    fun resetAudioEngine() = audioEngineProxy.resetAudioEngine()
+    fun resetRecordingEngine() = recordingEngineProxy.resetRecordingEngine()
 
-    fun getRecordedFilePath(): String = "$cacheDir/recording.wav"
+    fun getRecordedFilePath(): String = "$cacheDirForSession/recording.wav"
 }

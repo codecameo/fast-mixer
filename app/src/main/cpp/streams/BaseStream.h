@@ -10,7 +10,7 @@
 #include "oboe/AudioStream.h"
 #include "StreamConstants.h"
 #include "../logging_macros.h"
-#include "../RecordingIO.h"
+#include "../recording/RecordingIO.h"
 
 class BaseStream {
 public:
@@ -18,9 +18,11 @@ public:
 
     RecordingIO* mRecordingIO;
 
-    void startStream(oboe::AudioStream *stream);
-    void stopStream(oboe::AudioStream *stream);
-    void closeStream(oboe::AudioStream *stream);
+    oboe::AudioStream *mStream = nullptr;
+
+    void startStream();
+    void stopStream();
+    void closeStream();
 
 private:
     const char* TAG = "Stream Processor:: %s";

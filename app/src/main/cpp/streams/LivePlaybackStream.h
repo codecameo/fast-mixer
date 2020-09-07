@@ -11,8 +11,6 @@ class LivePlaybackStream: public BaseStream, public oboe::AudioStreamCallback {
 public:
     LivePlaybackStream(RecordingIO* recordingIO);
 
-    oboe::AudioStream *mLivePlaybackStream = nullptr;
-
     void openLivePlaybackStream();
 
     oboe::AudioStreamBuilder* setupLivePlaybackStreamParameters(oboe::AudioStreamBuilder *builder,

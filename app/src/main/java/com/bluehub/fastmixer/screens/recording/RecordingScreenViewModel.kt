@@ -3,8 +3,6 @@ package com.bluehub.fastmixer.screens.recording
 import android.content.Context
 import android.content.IntentFilter
 import android.media.AudioManager
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.databinding.Bindable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -18,7 +16,6 @@ import com.bluehub.fastmixer.common.utils.PermissionManager
 import com.bluehub.fastmixer.common.utils.ScreenConstants
 import kotlinx.coroutines.*
 import timber.log.Timber
-import java.nio.file.Files
 import java.util.*
 import javax.inject.Inject
 
@@ -132,17 +129,11 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
 
     init {
         getViewModelComponent().inject(this)
-        uiScope.launch {
-            withContext(Dispatchers.IO) {
-                context?.let {
-                    repository.createCacheDirectory(context!!.cacheDir.absolutePath)
-                    repository.createAudioEngine()
-                }
-            }
-            context?.let {
-                audioRepository.audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                _livePlaybackPermitted.value = audioRepository.isHeadphoneConnected()
-            }
+        context?.let {
+            repository.setCacheDirectory(context.cacheDir.absolutePath)
+            repository.createRecordingEngine()
+
+            audioRepository.audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         }
 
         audioDeviceChangeListener.setHandleInputCallback(handleInputStreamDisconnection)
@@ -154,6 +145,11 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
             addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED)
         }
         context?.registerReceiver(audioDeviceChangeListener, filter)
+    }
+
+    fun initializeViewModel() {
+        repository.setRecordingSessionId()
+        _livePlaybackPermitted.value = audioRepository.isHeadphoneConnected()
     }
 
     @Bindable
@@ -258,12 +254,16 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
                     repository.stopLivePlayback()
                 }
             }
-            repository.resetAudioEngine()
-            _seekbarProgress.value = 0
-            _seekbarMaxValue.value = 0
-            _audioVisualizerMaxAmplitude.value = 0
-            _recordingTimerText.value = "00:00"
+            resetProperties()
         }
+    }
+
+    fun resetProperties() {
+        repository.resetRecordingEngine()
+        _seekbarProgress.value = 0
+        _seekbarMaxValue.value = 0
+        _audioVisualizerMaxAmplitude.value = 0
+        _recordingTimerText.value = "00:00"
     }
 
     fun setGoBack() {
@@ -284,6 +284,7 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
             }
             repository.copyRecordedFile(context!!)
             stopUpdatingTimer()
+            resetProperties()
             _eventGoBack.value = true
         }
     }
@@ -331,7 +332,7 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
-        repository.deleteAudioEngine()
+        repository.deleteRecordingEngine()
         context?.unregisterReceiver(audioDeviceChangeListener)
 
         visualizerTimer?.cancel()
