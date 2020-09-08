@@ -6,10 +6,10 @@
 #define FAST_MIXER_RECORDINGIO_H
 
 #include "../audio/FileDataSource.h"
-#include "../../../../../cpp_dependencies/libsndfile/src/sndfile.hh"
+#include "sndfile.hh"
 #include "../audio/Player.h"
 #include "../taskqueue/TaskQueue.h"
-#include "../../../../../cpp_dependencies/oboe/include/oboe/Definitions.h"
+#include "oboe/Definitions.h"
 #include "../streams/StreamConstants.h"
 
 #ifndef MODULE_NAME
