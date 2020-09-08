@@ -12,7 +12,8 @@ import java.nio.file.StandardCopyOption
 import java.util.*
 
 class RecordingRepository(val recordingEngineProxy: RecordingEngineProxy) {
-    private val recordingSessionId = UUID.randomUUID().toString()
+    private var recordingSessionId: String = ""
+    private var cacheDirForSession: String = ""
     private lateinit var cacheDir: String
 
     suspend fun stopRecording() {
@@ -77,17 +78,22 @@ class RecordingRepository(val recordingEngineProxy: RecordingEngineProxy) {
         recordingEngineProxy.delete()
     }
 
-    fun createCacheDirectory(cacheDirPath: String): String {
-        cacheDir = "$cacheDirPath/$recordingSessionId"
-        val cacheDirFile = File(cacheDir)
+    fun setCacheDirectory(cacheDirPath: String) {
+        cacheDir = cacheDirPath
+    }
+
+    fun setRecordingSessionId() {
+        recordingSessionId = UUID.randomUUID().toString()
+        cacheDirForSession = "$cacheDir/$recordingSessionId"
+        val cacheDirFile = File(cacheDirForSession)
         if (!cacheDirFile.exists()) {
             cacheDirFile.mkdir()
         }
-        return cacheDir
+        recordingEngineProxy.setRecordingSessionId(recordingSessionId)
     }
 
-    fun createAudioEngine() {
-        recordingEngineProxy.create(cacheDir, recordingSessionId, true)
+    fun createRecordingEngine() {
+        recordingEngineProxy.create(cacheDir, true)
     }
 
     fun copyRecordedFile(context: Context) {
@@ -116,7 +122,7 @@ class RecordingRepository(val recordingEngineProxy: RecordingEngineProxy) {
 
     fun getDurationInSeconds() = recordingEngineProxy.getDurationInSeconds()
 
-    fun resetAudioEngine() = recordingEngineProxy.resetAudioEngine()
+    fun resetAudioEngine() = recordingEngineProxy.resetRecordingEngine()
 
     fun getRecordedFilePath(): String = "$cacheDir/recording.wav"
 }

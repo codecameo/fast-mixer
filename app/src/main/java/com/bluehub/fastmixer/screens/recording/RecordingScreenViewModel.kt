@@ -135,8 +135,9 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
         uiScope.launch {
             withContext(Dispatchers.IO) {
                 context?.let {
-                    repository.createCacheDirectory(context!!.cacheDir.absolutePath)
-                    repository.createAudioEngine()
+                    repository.setCacheDirectory(context!!.cacheDir.absolutePath)
+                    repository.createRecordingEngine()
+                    repository.setRecordingSessionId()
                 }
             }
             context?.let {

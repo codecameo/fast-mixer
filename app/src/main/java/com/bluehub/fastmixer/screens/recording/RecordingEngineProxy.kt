@@ -11,11 +11,13 @@ class RecordingEngineProxy {
     }
 
     fun create(appPathStr: String,
-               recordingSessionIdStr: String,
                recordingScreenViewModelPassed: Boolean = false): Boolean =
-        RecordingEngine.create(appPathStr, recordingSessionIdStr, recordingScreenViewModelPassed)
+        RecordingEngine.create(appPathStr, recordingScreenViewModelPassed)
 
     fun delete() = RecordingEngine.delete()
+
+    fun setRecordingSessionId(recordingSessionIdStr: String) =
+        RecordingEngine.setRecordingSessionId(recordingSessionIdStr)
 
     fun startRecording() = RecordingEngine.startRecording()
 
@@ -51,5 +53,5 @@ class RecordingEngineProxy {
 
     fun getDurationInSeconds(): Int = RecordingEngine.getDurationInSeconds()
 
-    fun resetAudioEngine() = RecordingEngine.resetAudioEngine()
+    fun resetRecordingEngine() = RecordingEngine.resetRecordingEngine()
 }

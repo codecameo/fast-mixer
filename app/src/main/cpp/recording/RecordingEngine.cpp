@@ -11,18 +11,22 @@
 
 RecordingEngine::RecordingEngine(
         char* appDir,
-        char* recordingSessionId,
         bool recordingScreenViewModelPassed) {
     assert(StreamConstants::mInputChannelCount == StreamConstants::mOutputChannelCount);
     mAppDir = appDir;
-    mRecordingSessionId = recordingSessionId;
-
-    char* recordingFilePath = strcat(mAppDir, "/recording.wav");
-    mRecordingIO.setRecordingFilePath(recordingFilePath);
     mRecordingIO.setStopPlaybackCallback([&] () {
         setStopPlayback();
     });
     mRecordingScreenViewModelPassed = recordingScreenViewModelPassed;
+}
+
+void RecordingEngine::setRecordingSessionId(char* recordingSessionId) {
+    mRecordingSessionId = recordingSessionId;
+
+    char* appDir = strcat(mAppDir, "/");
+    char* sessionCacheDir = strcat(appDir, mRecordingSessionId);
+    char* recordingFilePath = strcat(sessionCacheDir, "/recording.wav");
+    mRecordingIO.setRecordingFilePath(recordingFilePath);
 }
 
 RecordingEngine::~RecordingEngine() {
@@ -180,7 +184,7 @@ int RecordingEngine::getDurationInSeconds() {
     return mRecordingIO.getDurationInSeconds();
 }
 
-void RecordingEngine::resetAudioEngine() {
+void RecordingEngine::resetRecordingEngine() {
     return mRecordingIO.resetProperties();
 }
 

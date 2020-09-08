@@ -38,17 +38,25 @@ extern "C" {
     }
 
     JNIEXPORT jboolean JNICALL
-    Java_com_bluehub_fastmixer_screens_recording_RecordingEngine_create(JNIEnv *env, jclass, jstring appDirStr, jstring recordingSessionIdStr, jboolean  recordingScreenViewModelPassed) {
+    Java_com_bluehub_fastmixer_screens_recording_RecordingEngine_create(JNIEnv *env, jclass, jstring appDirStr, jboolean  recordingScreenViewModelPassed) {
         if (recordingEngine == nullptr) {
             char* appDir = const_cast<char *>(env->GetStringUTFChars(appDirStr, NULL));
-            char* recordingSessionId = const_cast<char *>(env->GetStringUTFChars(
-                    recordingSessionIdStr, NULL));
 
             prepare_kotlin_method_ids(env);
 
-            recordingEngine = new RecordingEngine(appDir, recordingSessionId, recordingScreenViewModelPassed);
+            recordingEngine = new RecordingEngine(appDir, recordingScreenViewModelPassed);
         }
         return (recordingEngine != nullptr);
+    }
+
+    JNIEXPORT void JNICALL
+    Java_com_bluehub_fastmixer_screens_recording_RecordingEngine_setRecordingSessionId(JNIEnv *env, jclass, jstring recordingSessionIdStr) {
+        if (recordingEngine == nullptr) {
+            LOGE("setRecordingSessionId: recordingEngine is null, you must call create() method before calling this method");
+        }
+        char* recordingSessionId = const_cast<char *>(env->GetStringUTFChars(
+            recordingSessionIdStr, NULL));
+        recordingEngine->setRecordingSessionId(recordingSessionId);
     }
 
     JNIEXPORT void JNICALL
@@ -212,11 +220,11 @@ extern "C" {
     }
 
     JNIEXPORT void JNICALL
-    Java_com_bluehub_fastmixer_screens_recording_RecordingEngine_resetAudioEngine(JNIEnv *env, jclass) {
+    Java_com_bluehub_fastmixer_screens_recording_RecordingEngine_resetRecordingEngine(JNIEnv *env, jclass) {
         if (recordingEngine == nullptr) {
             LOGE("resetAudioEngine: recordingEngine is null, you must call create() method before calling this method");
             return;
         }
-        return recordingEngine->resetAudioEngine();
+        return recordingEngine->resetRecordingEngine();
     }
 }

@@ -11,8 +11,11 @@ class RecordingEngine {
 
         @JvmStatic external fun create(
             appPathStr: String,
-            recordingSessionIdStr: String,
             recordingScreenViewModelPassed: Boolean = false): Boolean
+
+        @JvmStatic external fun setRecordingSessionId(
+            recordingSessionIdStr: String
+        )
 
         @JvmStatic external fun delete()
 
@@ -50,6 +53,6 @@ class RecordingEngine {
 
         @JvmStatic external fun getDurationInSeconds(): Int
 
-        @JvmStatic external fun resetAudioEngine()
+        @JvmStatic external fun resetRecordingEngine()
     }
 }
