@@ -129,11 +129,18 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
 
     init {
         getViewModelComponent().inject(this)
-        context?.let {
-            repository.setCacheDirectory(context.cacheDir.absolutePath)
-            repository.createRecordingEngine()
-
-            audioRepository.audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        uiScope.launch {
+            withContext(Dispatchers.IO) {
+                context?.let {
+                    repository.setCacheDirectory(context!!.cacheDir.absolutePath)
+                    repository.createRecordingEngine()
+                    repository.setRecordingSessionId()
+                }
+            }
+            context?.let {
+                audioRepository.audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                _livePlaybackPermitted.value = audioRepository.isHeadphoneConnected()
+            }
         }
 
         audioDeviceChangeListener.setHandleInputCallback(handleInputStreamDisconnection)
@@ -145,11 +152,6 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
             addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED)
         }
         context?.registerReceiver(audioDeviceChangeListener, filter)
-    }
-
-    fun initializeViewModel() {
-        repository.setRecordingSessionId()
-        _livePlaybackPermitted.value = audioRepository.isHeadphoneConnected()
     }
 
     @Bindable

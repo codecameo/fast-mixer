@@ -19,8 +19,8 @@ extern "C" {
         jmethodID setStopPlay = env->GetStaticMethodID(static_cast<jclass>(recordingVmGlobal), "setStopPlay", "()V");
 
         method_ids kotlinMethodIds {
-            .recordingScreenVM = static_cast<jclass>(recordingVmGlobal),
-            .setStopPlay = setStopPlay
+                .recordingScreenVM = static_cast<jclass>(recordingVmGlobal),
+                .setStopPlay = setStopPlay
         };
         return kotlinMethodIds;
     }
@@ -61,7 +61,7 @@ extern "C" {
 
     JNIEXPORT void JNICALL
     Java_com_bluehub_fastmixer_screens_recording_RecordingEngine_delete(JNIEnv *env, jclass) {
-        delete_kotlin_global_refs(env, kotlinMethodIdsPtr);
+        //delete_kotlin_global_refs(env, kotlinMethodIdsPtr);
         delete recordingEngine;
         recordingEngine = nullptr;
     }
