@@ -99,10 +99,10 @@ class RecordingRepository(val recordingEngineProxy: RecordingEngineProxy) {
     fun copyRecordedFile(context: Context) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
             val externalPath = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
-            val cacheFile = File("$cacheDir/recording.wav")
+            val cacheFile = File("$cacheDirForSession/recording.wav")
             if (cacheFile.exists()) {
                 Files.copy(
-                    Paths.get("$cacheDir/recording.wav"),
+                    Paths.get("$cacheDirForSession/recording.wav"),
                     Paths.get(externalPath!!.path + "/$recordingSessionId.wav"),
                     StandardCopyOption.REPLACE_EXISTING
                 )
@@ -122,7 +122,7 @@ class RecordingRepository(val recordingEngineProxy: RecordingEngineProxy) {
 
     fun getDurationInSeconds() = recordingEngineProxy.getDurationInSeconds()
 
-    fun resetAudioEngine() = recordingEngineProxy.resetRecordingEngine()
+    fun resetRecordingEngine() = recordingEngineProxy.resetRecordingEngine()
 
-    fun getRecordedFilePath(): String = "$cacheDir/recording.wav"
+    fun getRecordedFilePath(): String = "$cacheDirForSession/recording.wav"
 }

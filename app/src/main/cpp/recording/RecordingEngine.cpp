@@ -32,6 +32,9 @@ void RecordingEngine::setRecordingSessionId(char* recordingSessionId) {
 RecordingEngine::~RecordingEngine() {
     stopRecording();
     stopLivePlayback();
+    mRecordingIO.taskQueue->stop_queue();
+    usleep(100);
+    mRecordingIO.taskQueue->t.join();
 }
 
 void RecordingEngine::startLivePlayback() {

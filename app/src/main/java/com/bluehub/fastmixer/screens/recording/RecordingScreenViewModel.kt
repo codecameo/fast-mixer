@@ -3,8 +3,6 @@ package com.bluehub.fastmixer.screens.recording
 import android.content.Context
 import android.content.IntentFilter
 import android.media.AudioManager
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.databinding.Bindable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -18,7 +16,6 @@ import com.bluehub.fastmixer.common.utils.PermissionManager
 import com.bluehub.fastmixer.common.utils.ScreenConstants
 import kotlinx.coroutines.*
 import timber.log.Timber
-import java.nio.file.Files
 import java.util.*
 import javax.inject.Inject
 
@@ -259,7 +256,7 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
                     repository.stopLivePlayback()
                 }
             }
-            repository.resetAudioEngine()
+            repository.resetRecordingEngine()
             _seekbarProgress.value = 0
             _seekbarMaxValue.value = 0
             _audioVisualizerMaxAmplitude.value = 0
@@ -334,7 +331,6 @@ class RecordingScreenViewModel(override val context: Context?, override val tag:
         viewModelJob.cancel()
         repository.deleteAudioEngine()
         context?.unregisterReceiver(audioDeviceChangeListener)
-
         visualizerTimer?.cancel()
 
         seekbarTimer?.cancel()

@@ -225,6 +225,6 @@ extern "C" {
             LOGE("resetAudioEngine: recordingEngine is null, you must call create() method before calling this method");
             return;
         }
-        return recordingEngine->resetRecordingEngine();
+        recordingEngine->resetRecordingEngine();
     }
 }

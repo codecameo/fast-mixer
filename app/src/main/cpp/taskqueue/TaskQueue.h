@@ -21,30 +21,23 @@ class TaskQueue {
 
 public:
     void start_queue() {
-        is_running = true;
-        t = thread([this] {
-            this->executor_loop();
-        });
-        t.detach();
+        is_running.exchange(true);
+        t = std::move(std::thread([=]() { this->executor_loop(); }));
     }
 
     void stop_queue() {
-        is_running = false;
+        is_running.exchange(false);
     }
 
     void enqueue(std::function<void()> f) {
         q.push(f);
     }
-
-    bool isRunning() {
-        return is_running;
-    }
+    thread t;
 
 private:
     const char* TAG = "TaskQueue:: %d";
     std::queue<std::function<void()>> q;
     atomic<bool> is_running;
-    thread t;
 
     void executor_loop() {
         while (is_running) {
@@ -54,8 +47,8 @@ private:
                     f();
                 }
                 q.pop();
-                std::this_thread::sleep_for(std::chrono::microseconds (200));
             }
+            std::this_thread::sleep_for(std::chrono::microseconds (200));
         }
     }
 };
