@@ -34,6 +34,10 @@ extern "C" {
 
     extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
         java_machine = vm;
+        JNIEnv* env;
+        if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
+            return JNI_ERR;
+        }
         return  JNI_VERSION_1_6;
     }
 
@@ -61,7 +65,7 @@ extern "C" {
 
     JNIEXPORT void JNICALL
     Java_com_bluehub_fastmixer_screens_recording_RecordingEngine_delete(JNIEnv *env, jclass) {
-        //delete_kotlin_global_refs(env, kotlinMethodIdsPtr);
+        delete_kotlin_global_refs(env, kotlinMethodIdsPtr);
         delete recordingEngine;
         recordingEngine = nullptr;
     }
