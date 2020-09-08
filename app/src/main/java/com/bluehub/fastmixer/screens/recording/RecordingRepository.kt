@@ -12,8 +12,8 @@ import java.nio.file.StandardCopyOption
 import java.util.*
 
 class RecordingRepository(val recordingEngineProxy: RecordingEngineProxy) {
-    private lateinit var recordingSessionId: String
-    private lateinit var cacheDirForSession: String
+    private var recordingSessionId: String = ""
+    private var cacheDirForSession: String = ""
     private lateinit var cacheDir: String
 
     suspend fun stopRecording() {

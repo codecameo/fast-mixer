@@ -107,6 +107,9 @@ void RecordingIO::flush_to_file(int16_t* buffer, int32_t length, const std::stri
 }
 
 void RecordingIO::perform_flush(int flushIndex) {
+    if (mRecordingFilePath.empty()) {
+        return;
+    }
     int16_t* oldBuffer = mData;
     is_reallocated = false;
     taskQueue->enqueue([&]() {

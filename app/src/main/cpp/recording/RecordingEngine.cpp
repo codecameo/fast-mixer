@@ -14,10 +14,11 @@ RecordingEngine::RecordingEngine(
         bool recordingScreenViewModelPassed) {
     assert(StreamConstants::mInputChannelCount == StreamConstants::mOutputChannelCount);
     mAppDir = appDir;
+    mRecordingScreenViewModelPassed = recordingScreenViewModelPassed;
+
     mRecordingIO.setStopPlaybackCallback([&]() {
         setStopPlayback();
     });
-    mRecordingScreenViewModelPassed = recordingScreenViewModelPassed;
 }
 
 RecordingEngine::~RecordingEngine() {

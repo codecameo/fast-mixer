@@ -13,7 +13,7 @@ const char *TAG = "native-lib: %s";
 static RecordingEngine *recordingEngine = nullptr;
 
 extern "C" {
-    method_ids prepare_kotlin_method_ids(JNIEnv *env) {
+    void prepare_kotlin_method_ids(JNIEnv *env) {
         jclass recordingVMClass = env->FindClass("com/bluehub/fastmixer/screens/recording/RecordingScreenViewModel");
         auto recordingVmGlobal = env->NewGlobalRef(recordingVMClass);
         jmethodID setStopPlay = env->GetStaticMethodID(static_cast<jclass>(recordingVmGlobal), "setStopPlay", "()V");
@@ -22,22 +22,19 @@ extern "C" {
                 .recordingScreenVM = static_cast<jclass>(recordingVmGlobal),
                 .setStopPlay = setStopPlay
         };
-        return kotlinMethodIds;
+        kotlinMethodIdsPtr = std::make_shared<method_ids>(kotlinMethodIds);
     }
 
-    void delete_kotlin_global_refs(JNIEnv *env, std::shared_ptr<method_ids> kotlinMethodIds) {
-        if (kotlinMethodIds != nullptr && kotlinMethodIds->recordingScreenVM != nullptr) {
-            env->DeleteGlobalRef(kotlinMethodIds->recordingScreenVM);
-            kotlinMethodIds.reset();
+    void delete_kotlin_global_refs(JNIEnv *env) {
+        if (kotlinMethodIdsPtr != nullptr && kotlinMethodIdsPtr->recordingScreenVM != nullptr) {
+            env->DeleteGlobalRef(kotlinMethodIdsPtr->recordingScreenVM);
+            kotlinMethodIdsPtr.reset();
+            kotlinMethodIdsPtr = nullptr;
         }
     }
 
     extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
         java_machine = vm;
-        JNIEnv* env;
-        if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
-            return JNI_ERR;
-        }
         return  JNI_VERSION_1_6;
     }
 
@@ -45,8 +42,6 @@ extern "C" {
     Java_com_bluehub_fastmixer_screens_recording_RecordingEngine_create(JNIEnv *env, jclass, jstring appDirStr, jboolean  recordingScreenViewModelPassed) {
         if (recordingEngine == nullptr) {
             char* appDir = const_cast<char *>(env->GetStringUTFChars(appDirStr, NULL));
-            method_ids kotlinMethodIds = prepare_kotlin_method_ids(env);
-            kotlinMethodIdsPtr = std::make_shared<method_ids>(kotlinMethodIds);
             recordingEngine = new RecordingEngine(appDir, recordingScreenViewModelPassed);
         }
         return (recordingEngine != nullptr);
@@ -60,12 +55,13 @@ extern "C" {
         char* recordingSessionId = const_cast<char *>(env->GetStringUTFChars(
                 recordingSessionIdStr, NULL));
         recordingEngine->setRecordingSessionId(recordingSessionId);
-
+        delete_kotlin_global_refs(env);
+        prepare_kotlin_method_ids(env);
     }
 
     JNIEXPORT void JNICALL
     Java_com_bluehub_fastmixer_screens_recording_RecordingEngine_delete(JNIEnv *env, jclass) {
-        delete_kotlin_global_refs(env, kotlinMethodIdsPtr);
+        delete_kotlin_global_refs(env);
         delete recordingEngine;
         recordingEngine = nullptr;
     }
