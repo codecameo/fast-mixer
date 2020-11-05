@@ -34,6 +34,14 @@ buildscript {
     }
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+project.ext {
+    useASAN = true
+    ndkDir = properties.getProperty('ndk.dir')
+}
+
 allprojects {
     repositories {
         google()

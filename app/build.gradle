@@ -4,6 +4,9 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs'
 
+def abiFiltersForWrapScript = []
+def SupportedABIs = ['armeabi-v7a']
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -18,15 +21,50 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags ""
+                cppFlags "-std=c++14 -frtti -fexceptions"
+                abiFilters.addAll( SupportedABIs )
             }
         }
     }
 
     buildTypes {
+        debug {
+            externalNativeBuild {
+                cmake {
+                    if (rootProject.ext.useASAN)
+                        arguments "-DUSEASAN=ON"
+                }
+            }
+            packagingOptions {
+                doNotStrip "**.so"
+                if (rootProject.ext.useASAN && abiFiltersForWrapScript) {
+                    def exclude_abis = ["armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64", "mips", "mips64"]
+                            .findAll { !(it in abiFiltersForWrapScript) }
+                            .collect { "**/" + it + "/wrap.sh" }
+                    excludes += exclude_abis
+                }
+            }
+
+            if (rootProject.ext.useASAN) {
+                sourceSets {
+                    main {
+                        jniLibs {
+                            srcDir {
+                                "wrap_add_dir/libs"
+                            }
+                        }
+                        resources {
+                            srcDir {
+                                "wrap_add_dir/res"
+                            }
+                        }
+                    }
+                }
+            }
+        }
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -38,6 +76,15 @@ android {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
             version "3.10.2"
+        }
+    }
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include SupportedABIs.join(", ")
+            universalApk false
         }
     }
 
@@ -77,4 +124,59 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$dagger_compiler_version"
 
     implementation "com.github.Armen101:AudioRecordView:$audio_record_view_version"
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith('generate')) {
+        if(rootProject.ext.useASAN)
+            task.dependsOn createWrapScriptAddDir
+    }
+}
+
+task deleteASAN(type: Delete) {
+    delete 'wrap_add_dir'
+}
+
+clean.dependsOn(deleteASAN)
+
+static def writeWrapScriptToFullyCompileJavaApp(wrapFile, abi) {
+    if(abi == "armeabi" || abi == "armeabi-v7a")
+        abi = "arm"
+    if(abi == "arm64-v8a")
+        abi = "aarch64"
+    wrapFile.withWriter { writer ->
+        writer.write('#!/system/bin/sh\n')
+        writer.write('HERE="$(cd "$(dirname "$0")" && pwd)"\n')
+        writer.write('export ASAN_OPTIONS=log_to_syslog=false,allow_user_segv_handler=1\n')
+        writer.write('export ASAN_ACTIVATION_OPTIONS=include_if_exists=/data/local/tmp/asan.options.b\n')
+        writer.write("export LD_PRELOAD=\$HERE/libclang_rt.asan-${abi}-android.so\n")
+        writer.write('\$@\n')
+    }
+}
+
+task copyASANLibs(type:Copy) {
+    def libDir = file("$rootProject.ext.ndkDir").absolutePath + "/toolchains/llvm/prebuilt/"
+    for (String abi : SupportedABIs) {
+        def dir = new File("app/wrap_add_dir/libs/" + abi)
+        dir.mkdirs()
+        if(abi == 'armeabi-v7a' || abi == 'armeabi')
+            abi = "arm"
+        if(abi == "arm64-v8a")
+            abi = "aarch64"
+        FileTree tree = fileTree(dir: libDir).include("**/*asan*${abi}*.so")
+        tree.each { File file ->
+            from file
+            into dir.absolutePath
+        }
+    }
+}
+
+task createWrapScriptAddDir(dependsOn: copyASANLibs) {
+    for (String abi : SupportedABIs) {
+        def dir = new File("app/wrap_add_dir/res/lib/" + abi)
+        dir.mkdirs()
+        def wrapFile = new File(dir, "wrap.sh")
+        writeWrapScriptToFullyCompileJavaApp(wrapFile, abi)
+        println "write file " + wrapFile.path
+    }
 }
