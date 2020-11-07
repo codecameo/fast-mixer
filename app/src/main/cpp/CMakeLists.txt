@@ -109,6 +109,13 @@ set_target_properties(avfilter PROPERTIES IMPORTED_LOCATION
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
 
+
+target_compile_options(recordingEngine PUBLIC -fsanitize=address -fno-omit-frame-pointer)
+set_target_properties(recordingEngine PROPERTIES LINK_FLAGS -fsanitize=address)
+
+target_compile_options(mixingEngine PUBLIC -fsanitize=address -fno-omit-frame-pointer)
+set_target_properties(mixingEngine PROPERTIES LINK_FLAGS -fsanitize=address)
+
 target_link_libraries(
         recordingEngine
         ${log-lib}
