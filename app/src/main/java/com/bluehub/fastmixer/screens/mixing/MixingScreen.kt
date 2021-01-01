@@ -4,7 +4,9 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -13,7 +15,6 @@ import com.bluehub.fastmixer.common.permissions.PermissionFragment
 import com.bluehub.fastmixer.common.utils.DialogManager
 import com.bluehub.fastmixer.common.utils.ViewModelType
 import com.bluehub.fastmixer.databinding.MixingScreenBinding
-import timber.log.Timber
 import javax.inject.Inject
 
 class MixingScreen : PermissionFragment<MixingScreenViewModel>(ViewModelType.NAV_SCOPED) {
@@ -50,14 +51,15 @@ class MixingScreen : PermissionFragment<MixingScreenViewModel>(ViewModelType.NAV
 
         dataBinding.lifecycleOwner = viewLifecycleOwner
 
-        audioFileListAdapter = AudioFileListAdapter(
+        audioFileListAdapter = AudioFileListAdapter(requireContext(),
             AudioFileEventListeners(
                     { filePath: String -> viewModel.addFile(filePath) },
                     { filePath: String -> viewModel.readSamples(filePath) },
                     { filePath: String -> viewModel.deleteFile(filePath) },
                     { filePath: String -> viewModel.getTotalSamples(filePath) }
             ),
-            audioViewSampleCountStore
+            audioViewSampleCountStore,
+            viewModel.audioFiles
         )
         dataBinding.audioFileListView.adapter = audioFileListAdapter
 
@@ -82,21 +84,7 @@ class MixingScreen : PermissionFragment<MixingScreenViewModel>(ViewModelType.NAV
         })
 
         viewModel.audioFilesLiveData.observe(viewLifecycleOwner, {
-            audioFileListAdapter.submitList(it)
-        })
-
-        viewModel.itemAddedIdx.observe(viewLifecycleOwner, {
-            if (it != null) {
-                audioFileListAdapter.notifyAddItem(it)
-                viewModel.resetItemAddedIdx()
-            }
-        })
-
-        viewModel.itemRemovedIdx.observe(viewLifecycleOwner, {
-            if (it != null) {
-                audioFileListAdapter.notifyRemoveItem(it)
-                viewModel.resetItemRemovedIdx()
-            }
+            audioFileListAdapter.notifyDataSetChanged()
         })
 
         viewModel.eventRead.observe(viewLifecycleOwner, {

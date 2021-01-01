@@ -100,7 +100,7 @@ class FileWaveView @JvmOverloads constructor(
     }
 
     fun zoomIn() {
-        if (zoomLevel.value * mWidth.value < mTotalSamplesCount.value) {
+        if (zoomLevel.value * getBaseWidth() < mTotalSamplesCount.value) {
             zoomLevel.onNext(zoomLevel.value + ZOOM_STEP)
         }
     }
@@ -125,10 +125,14 @@ class FileWaveView @JvmOverloads constructor(
         }
     }
 
-    private fun getPlotNumPts(): Int {
+    private fun getBaseWidth(): Int {
         if (!mAudioViewSampleCountStore.hasValue() || !mAudioFilePath.hasValue()) return 0
 
-        val numSamples = mAudioViewSampleCountStore.value.getSampleCount(mAudioFilePath.value) ?: return 0
+        return mAudioViewSampleCountStore.value.getSampleCount(mAudioFilePath.value) ?: 0
+    }
+
+    private fun getPlotNumPts(): Int {
+        val numSamples = getBaseWidth()
 
         return if (zoomLevel.hasValue()) {
             zoomLevel.value * numSamples

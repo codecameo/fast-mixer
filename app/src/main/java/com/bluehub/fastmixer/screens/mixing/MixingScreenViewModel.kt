@@ -29,14 +29,6 @@ class MixingScreenViewModel @Inject constructor(override val context: Context,
     val eventRead: LiveData<Boolean>
         get() = _eventRead
 
-    private val _itemRemovedIdx = MutableLiveData<Int>()
-    val itemRemovedIdx: LiveData<Int>
-        get() = _itemRemovedIdx
-
-    private val _itemAddedIdx = MutableLiveData<Int>()
-    val itemAddedIdx: LiveData<Int>
-        get() = _itemAddedIdx
-
     init {
         mixingRepository.createMixingEngine()
     }
@@ -59,10 +51,6 @@ class MixingScreenViewModel @Inject constructor(override val context: Context,
 
     fun onRecordNavigated() {
         _eventRecord.value = false
-    }
-
-    fun resetItemAddedIdx() {
-        _itemAddedIdx.value = null
     }
 
     fun addRecordedFilePath(filePath: String) {
@@ -94,7 +82,6 @@ class MixingScreenViewModel @Inject constructor(override val context: Context,
                 withContext(Dispatchers.Main) {
                     audioFiles.add(AudioFile(newPath, AudioFileType.IMPORTED))
                     audioFilesLiveData.value = audioFiles
-                    _itemAddedIdx.value = audioFiles.size - 1
                 }
             }
         }
@@ -137,15 +124,9 @@ class MixingScreenViewModel @Inject constructor(override val context: Context,
                 val removedFile = audioFiles.removeAt(it)
                 fileManager.removeFile(removedFile.path)
                 audioFilesLiveData.value = audioFiles
-                _itemRemovedIdx.value = it
             }
         }
     }
-
-    fun resetItemRemovedIdx() {
-        _itemRemovedIdx.value = null
-    }
-
 
     fun getTotalSamples(filePath: String): Int = mixingRepository.getTotalSamples(filePath)
 

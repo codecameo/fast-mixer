@@ -1,63 +1,29 @@
 package com.bluehub.fastmixer.screens.mixing
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.ArrayAdapter
 import com.bluehub.fastmixer.databinding.ListItemAudioFileBinding
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 
-class AudioFileListAdapter(private val clickListener: AudioFileEventListeners, private val audioViewSampleCountStore: AudioViewSampleCountStore)
-    : ListAdapter<AudioFile, AudioFileListAdapter.ViewHolder>(AudioFileDiffCallback()) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val holder = ViewHolder.from(parent)
-        holder.setIsRecyclable(false)
-        return holder
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position)!!, clickListener, audioViewSampleCountStore)
-    }
-
-    class ViewHolder private constructor(val binding: ListItemAudioFileBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: AudioFile, clickListener: AudioFileEventListeners, audioViewSampleCountStore: AudioViewSampleCountStore) {
-            binding.audioFile = item
-            binding.eventListener = clickListener
-            binding.audioViewSampleCountStore = audioViewSampleCountStore
-            binding.executePendingBindings()
-        }
-
-        companion object {
-            fun from(parent: ViewGroup): ViewHolder {
-                val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = ListItemAudioFileBinding.inflate(layoutInflater, parent, false)
-                return ViewHolder(binding)
-            }
-        }
-    }
-
-    fun notifyAddItem(pos: Int) {
-        notifyItemInserted(pos)
-        notifyItemChanged(pos)
-        notifyDataSetChanged()
-    }
-
-    fun notifyRemoveItem(pos: Int) {
-        notifyItemRemoved(pos)
-        notifyItemRangeChanged(pos, itemCount)
-        notifyDataSetChanged()
-    }
-}
-
-class AudioFileDiffCallback : DiffUtil.ItemCallback<AudioFile>() {
-    override fun areItemsTheSame(oldItem: AudioFile, newItem: AudioFile): Boolean {
-        return oldItem.path == newItem.path
-    }
-
-    override fun areContentsTheSame(oldItem: AudioFile, newItem: AudioFile): Boolean {
-        return oldItem == newItem
+class AudioFileListAdapter(
+        context: Context,
+        private val audioFileEventListeners: AudioFileEventListeners,
+        private val audioViewSampleCountStore: AudioViewSampleCountStore,
+        audioFileList: MutableList<AudioFile>
+): ArrayAdapter<AudioFile>(context, -1, audioFileList) {
+    @SuppressLint("ViewHolder")
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val binding = ListItemAudioFileBinding.inflate(inflater, parent, false)
+        binding.audioFile = getItem(position)
+        binding.eventListener = audioFileEventListeners
+        binding.audioViewSampleCountStore = audioViewSampleCountStore
+        return binding.root
     }
 }
 
